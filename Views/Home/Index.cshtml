@@ -1,0 +1,658 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div id="3d-graph"></div>
+
+@section scripts {
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+    <script src="//unpkg.com/three"></script>
+    <script src="//unpkg.com/three-spritetext"></script>
+    <script src="//unpkg.com/3d-force-graph"></script>
+    <script type="text/javascript">
+        $(function () {
+            $(document).ready(function () {
+                //getGalaxyColumns();
+                getGalaxyTables();
+                //GetFullGalaxyTablesInOutAll();
+            });
+
+
+            ////////////////////////////////////////////////////////////////////
+            function GetFullGalaxyTablesInOutAll() {
+                      $.ajax({
+                url: '@Url.Action("GetFullGalaxyTablesInOutAll")'
+                , success: function (result) {
+                    var res = jQuery.parseJSON(result);
+                    //buildGrapWithTextAsNodes(res);
+                    buildGrap3(res);
+                },
+                error: function (err) {alert(err)}
+                      });
+            }
+
+            function buildGrap3(json) {
+                const gData = {
+                    nodes: json.nodes,
+                    links: json.links
+                }
+                const Graph = ForceGraph3D()
+                    (document.getElementById('3d-graph'))
+                    .nodeVal(function (d) {
+                        var size = d.inoutCnt;
+                        if (d.rid == '#30:376') { size = 1000 }
+                        return size;
+                    })
+                    .nodeLabel(function (d) {
+                        var ToolName = d.ToolName;
+                        var ToolType = d.ToolType;
+                        return "<div><span class='label'>" +
+                            "<div style=\"font-size:18px\"> Name: " + d.Name + "</div>" +
+                            " ToolName: " + d.ToolName +
+                            "<br />ToolType: " + d.ToolType +
+                            "<br />ObjectType: " + d.ObjectType +
+                            "<br />ContainerToolType: " + d.ContainerToolType +
+                            "</span></div>";
+                    })
+                    .nodeColor(function (d) {
+                        var grp = d.group;
+                        var ToolName = d.ToolName;
+                        if (grp == null) {
+                            return "grey"
+                        }
+                        if (grp == "1") {
+                            var etlColor;
+                            if (ToolName == 'SSIS') {
+                                etlColor = "#b8b82e"
+                            }
+                            if (ToolName == 'NETEZZA') {
+                                etlColor = "#00ace6"
+                            }
+                            return etlColor
+                        }
+                        if (grp == "2") {
+                            var dbColor;
+                            if (ToolName == 'SSAS') {
+                                dbColor = "#e0e01f"
+                            }
+                            if (ToolName == 'NETEZZA') {
+                                dbColor = "#e01f4f"
+                            }
+                            if (ToolName == 'SQLS') {
+                                dbColor = "#ca1c53"
+                            }
+                            if (ToolName == 'NZOLEDB') {
+                                dbColor = "#e74b72"
+                            }
+                            if (ToolName == 'FILE') {
+                                dbColor = "#ab8790"
+                            }
+                            if (ToolName == 'TABULAR') {
+                                dbColor = "#b8952e"
+                            }
+                            if (ToolName == 'SQLNCLI11.1') {
+                                dbColor = "#ea628d"
+                            }
+                            return dbColor
+                        }
+                        if (grp == "3") {
+                            var reportColor;
+                            if (ToolName == 'POWER_BI') {
+                                reportColor = "#2eb873"
+                            }
+                            if (ToolName == 'SSRS') {
+                                reportColor = "#2eb850"
+                            }
+                            return reportColor;
+                        }
+                    })
+                    //.linkAutoColorBy(function (d) {
+                    //    var test = gData.nodes[d.source];
+                    //    if (test == null) {
+                    //      "0"
+                    //    } else {
+                    //        gData.nodes[d.source].group
+                    //    }
+                    //}
+                    //)
+                    .linkOpacity(0.3)
+                    .graphData(gData)
+                    .nodeThreeObject(function (d) {
+
+                        var grp = d.group;
+                        var ToolName = d.ToolName;
+                        var _color;
+
+                        function colors(d) {
+                            if (grp == null) {
+                                _color = "grey"
+                            }
+                            if (grp == "1") {
+                                var etlColor;
+                                if (ToolName == 'SSIS') {
+                                    etlColor = "#00bfff"
+                                }
+                                if (ToolName == 'NETEZZA') {
+                                    etlColor = "#00ace6"
+                                }
+                                if (ToolName == 'SQLS') {
+                                    etlColor = "#007399"
+                                }
+                                _color = etlColor
+                            }
+                            if (grp == "2") {
+                                var dbColor;
+                                if (ToolName == 'SSAS') {
+                                    dbColor = "#e0e01f"
+                                }
+                                if (ToolName == 'NETEZZA') {
+                                    dbColor = "#e01f4f"
+                                }
+                                if (ToolName == 'SQLS') {
+                                    dbColor = "#ca1c53"
+                                }
+                                if (ToolName == 'NZOLEDB') {
+                                    dbColor = "#e74b72"
+                                }
+                                if (ToolName == 'FILE') {
+                                    dbColor = "#ab8790"
+                                }
+                                if (ToolName == 'TABULAR') {
+                                    dbColor = "#b8952e"
+                                }
+                                if (ToolName == 'SQLNCLI11.1') {
+                                    dbColor = "#ea628d"
+                                }
+                                _color = dbColor
+                            }
+                            if (grp == "3") {
+                                var reportColor;
+                                if (ToolName == 'POWER_BI') {
+                                    reportColor = "#2eb873"
+                                }
+                                if (ToolName == 'SSRS') {
+                                    reportColor = "#2eb850"
+                                }
+                                _color = reportColor;
+                            }
+                            return _color;
+                        }
+
+                        if (d.rid == '#30:376') {
+
+                            const sprite = new SpriteText(d.Name);
+                            sprite.color = 'white';
+                            sprite.textHeight = 18;
+                            sprite.position.set(60, 0, 0)
+
+                            const geometry = new THREE.SphereGeometry(d.inoutCnt, 32, 32);
+                            const material = new THREE.MeshPhongMaterial({ color: colors(d) });
+                            const sphere = new THREE.Mesh(geometry, material);
+
+                            //create a group and add the two cubes
+                            //These cubes can now be rotated / scaled etc as a group
+                            const group = new THREE.Group();
+                            group.add(sprite);
+                            group.add(sphere);
+                            return group;
+                        } else {
+                            const geometry = new THREE.SphereGeometry(d.inoutCnt, 32, 32);
+                            const material = new THREE.MeshPhongMaterial({ color: colors(d) });
+                            const sphere = new THREE.Mesh(geometry, material);
+                            return sphere;
+                        }
+
+                    })
+                //.nodeThreeObject(node => {
+                //    var textColor, grp = node.group;
+                //    if (grp == "1") {
+                //        textColor = "#36C5F0"
+                //    }
+                //    if (grp == "2") {
+                //        textColor = "#E01E5A"
+                //    }
+                //    if (grp == "3") {
+                //        textColor = "#2EB67D"
+                //    }
+                //    const sprite = new SpriteText(node.Name);
+                //    sprite.color = textColor;
+                //    sprite.textHeight = 8;
+                //    return sprite;
+                //});
+            }
+
+
+            /////////////////////////////////////////////////////////////////////
+            function getGalaxyTables() {
+                      $.ajax({
+                url: '@Url.Action("GetFullGalaxyTables")'
+                , success: function (result) {
+                    var res = jQuery.parseJSON(result);
+                    //buildGrapWithTextAsNodes(res);
+                    buildGrap2(res);
+                },
+                error: function (err) {alert(err)}
+                      });
+            }
+
+            function buildGrap2(json) {
+
+
+                const gData = {
+                    nodes: json.nodes,
+                    links: json.links
+                }
+                const Graph = ForceGraph3D()
+                    (document.getElementById('3d-graph'))
+                    .nodeVal(function (d) {
+                        var size = d.inoutCnt;
+                        if (d.rid == '#30:376') { size = 1000}
+                        return size;
+                    })
+                    .nodeLabel(function (d) {
+                        var ToolName = d.ToolName;
+                        var ToolType = d.ToolType;
+                        return "<div><span class='label'>" +
+                            "<div style=\"font-size:18px\"> Name: " + d.Name + "</div>" +
+                            " ToolName: " + d.ToolName +
+                            "<br />ToolType: " + d.ToolType +
+                            "<br />ObjectType: " + d.ObjectType +
+                            "<br />ContainerToolType: " + d.ContainerToolType +
+                            "</span></div>";
+                    })
+                    .nodeColor(function (d) {
+                        var grp = d.group;
+                        var ToolName = d.ToolName;
+                        if (grp == null) {
+                            return "grey"
+                        }
+                        if (grp == "1") {
+                            var etlColor;
+                            if (ToolName == 'SSIS') {
+                                etlColor = "#b8b82e"
+                            }
+                            if (ToolName == 'NETEZZA') {
+                                etlColor = "#00ace6"
+                            }
+                            return etlColor
+                        }
+                        if (grp == "2") {
+                            var dbColor;
+                            if (ToolName == 'SSAS') {
+                                dbColor = "#e0e01f"
+                            }
+                            if (ToolName == 'NETEZZA') {
+                                dbColor = "#e01f4f"
+                            }
+                            if (ToolName == 'SQLS') {
+                                dbColor = "#ca1c53"
+                            }
+                            if (ToolName == 'NZOLEDB') {
+                                dbColor = "#e74b72"
+                            }
+                            if (ToolName == 'FILE') {
+                                dbColor = "#ab8790"
+                            }
+                            if (ToolName == 'TABULAR') {
+                                dbColor = "#b8952e"
+                            }
+                            if (ToolName == 'SQLNCLI11.1') {
+                                dbColor = "#ea628d"
+                            }
+                            return dbColor
+                        }
+                        if (grp == "3") {
+                            var reportColor;
+                            if (ToolName == 'POWER_BI') {
+                                reportColor = "#2eb873"
+                            }
+                            if (ToolName == 'SSRS') {
+                                reportColor = "#2eb850"
+                            }
+                            return reportColor;
+                        }
+                    })
+                    //.linkAutoColorBy(function (d) {
+                    //    var test = gData.nodes[d.source];
+                    //    if (test == null) {
+                    //      "0"
+                    //    } else {
+                    //        gData.nodes[d.source].group
+                    //    }
+                    //}
+                    //)
+                    .linkOpacity(0.3)
+                    .graphData(gData)
+                    .nodeThreeObject(function (d) {
+
+                        var grp = d.group;
+                        var ToolName = d.ToolName;
+                        var _color;
+
+                        function colors(d) {
+                            if (grp == null) {
+                                _color = "grey"
+                            }
+                            if (grp == "1") {
+                                var etlColor;
+                                if (ToolName == 'SSIS') {
+                                    etlColor = "#00bfff"
+                                }
+                                if (ToolName == 'NETEZZA') {
+                                    etlColor = "#00ace6"
+                                }
+                                if (ToolName == 'SQLS') {
+                                    etlColor = "#007399"
+                                }
+                                _color = etlColor
+                            }
+                            if (grp == "2") {
+                                var dbColor;
+                                if (ToolName == 'SSAS') {
+                                    dbColor = "#e0e01f"
+                                }
+                                if (ToolName == 'NETEZZA') {
+                                    dbColor = "#e01f4f"
+                                }
+                                if (ToolName == 'SQLS') {
+                                    dbColor = "#ca1c53"
+                                }
+                                if (ToolName == 'NZOLEDB') {
+                                    dbColor = "#e74b72"
+                                }
+                                if (ToolName == 'FILE') {
+                                    dbColor = "#ab8790"
+                                }
+                                if (ToolName == 'TABULAR') {
+                                    dbColor = "#b8952e"
+                                }
+                                if (ToolName == 'SQLNCLI11.1') {
+                                    dbColor = "#ea628d"
+                                }
+                                _color = dbColor
+                            }
+                            if (grp == "3") {
+                                var reportColor;
+                                if (ToolName == 'POWER_BI') {
+                                    reportColor = "#2eb873"
+                                }
+                                if (ToolName == 'SSRS') {
+                                    reportColor = "#2eb850"
+                                }
+                                _color = reportColor;
+                            }
+                            return _color;
+                        }
+
+                        if (d.rid == '#30:376') {
+
+                            const sprite = new SpriteText(d.Name);
+                            sprite.color = 'white';
+                            sprite.textHeight = 18;
+                            sprite.position.set(60, 0, 0)
+
+                            const geometry = new THREE.SphereGeometry(d.inoutCnt, 32, 32);
+                            const material = new THREE.MeshPhongMaterial({ color: colors(d) });
+                            const sphere = new THREE.Mesh(geometry, material);
+
+                            //create a group and add the two cubes
+                            //These cubes can now be rotated / scaled etc as a group
+                            const group = new THREE.Group();
+                            group.add(sprite);
+                            group.add(sphere);
+                            return group;
+                        } else {
+                            const geometry = new THREE.SphereGeometry(d.inoutCnt, 32, 32);
+                            const material = new THREE.MeshPhongMaterial({ color: colors(d) });
+                            const sphere = new THREE.Mesh(geometry, material);
+                            return sphere;
+                        }
+
+                    })
+                    //.nodeThreeObject(node => {
+                    //    var textColor, grp = node.group;
+                    //    if (grp == "1") {
+                    //        textColor = "#36C5F0"
+                    //    }
+                    //    if (grp == "2") {
+                    //        textColor = "#E01E5A"
+                    //    }
+                    //    if (grp == "3") {
+                    //        textColor = "#2EB67D"
+                    //    }
+                    //    const sprite = new SpriteText(node.Name);
+                    //    sprite.color = textColor;
+                    //    sprite.textHeight = 8;
+                    //    return sprite;
+                    //});
+            }
+
+
+
+        //$('.button').on("click", function(){
+        function getGalaxyColumns() {
+            $.ajax({
+                url: '@Url.Action("GetFullGalaxy")'
+                , success: function (result) {
+                    var res = jQuery.parseJSON(result);
+                    //buildGrapWithTextAsNodes(res);
+                    buildGrap1(res);
+                },
+                error: function (err) {alert(err)}
+            });
+            }
+
+            function buildGrap1(json) {
+                const gData = {
+                    nodes: json.nodes,
+                    links: json.links
+                }
+
+                const Graph = ForceGraph3D()
+                    (document.getElementById('3d-graph'))
+                    .nodeColor(function (d) {
+                        var grp = d.group;
+                        if (grp == null) {
+                            return "grey"
+                        }
+                        if (grp == "1") {
+                            return "#36C5F0"
+                        }
+                        if (grp == "2") {
+                            return "#E01E5A"
+                        }
+                        if (grp == "3") {
+                            return "#2EB67D"
+                        }
+                    })
+                    //.linkAutoColorBy(function (d) {
+                    //    var test = gData.nodes[d.source];
+                    //    if (test == null) {
+                    //      "0"
+                    //    } else {
+                    //        gData.nodes[d.source].group
+                    //    }
+                    //}
+                    //)
+                    .linkOpacity(0.5)
+                    .graphData(gData);
+            }
+
+            function buildGrapWithTextAsNodes(json) {
+
+                //var nodes3d = [{ id: "C1", name: "concept1", idF: "4.694041348312028", val: "-0.20666666666667" }, { id: "C2", name: "concept2", idF: "6.679923354366069", val: "-0.33333333333333" }, { id: "C3", name: "concept3", idF: "1.6953768184721631", val: "0.5" }, { id: "C4", name: "adsf", idF: "20.804050486273308", val: "0.2" }, { id: "C5", name: "asdfasdfasfff", idF: "0.2133218573348246" }, { id: "C6", name: "asdfasdfasdf", idF: "1.563307213906586", val: "1" }, { id: "C7", name: "asdfasdfsf", idF: "0.2133218573345826", val: "0.5" }, { id: "C8", name: "asdf", idF: "1.7334210278441309", val: "-1" }, { id: "C9", name: "asdfaaa", idF: "1.769763806431719", val: "0.4561" }, { id: "C10", name: "fghj", idF: "14.964094237985147", val: "-0.7" }, { id: "C11", name: "tyyy", idF: "3.7338759654765576", val: "-0.521" }, { id: "C12", name: "ieieiei", idF: "5.4323754915062406", val: "0.111" }, { id: "C13", name: "bbcbc", idF: "5.038289056423014", val: "0.5" }, { id: "C14", name: "gdgdg", idF: "0.5024173302989661", val: "-0.994" }, { id: "C15", name: "pl", idF: "1.858575877553269", val: "-0.4528" }, { id: "C16", name: "qqq", idF: "0.7363391364155112", val: "-0.4533" }];
+                //var edges3d = [{ source: "C1", target: "C2", weight: "-0.56428571428571" }, { source: "C1", target: "C3", weight: "0.25" }, { source: "C2", target: "C3", weight: "0.18571428571429" }, { source: "C2", target: "C1", weight: "0.4" }, { source: "C3", target: "C9", weight: "-0.13683" }, { source: "C4", target: "C6", weight: "1" }, { source: "C5", target: "C2", weight: "0.33" }, { source: "C6", target: "C8", weight: "-0.4" }, { source: "C8", target: "C2", weight: "0.7852" }, { source: "C9", target: "C7", weight: "-0.247" }, { source: "C9", target: "C13", weight: "0.4536" }, { source: "C10", target: "C12", weight: "-0.1452" }, { source: "C11", target: "C4", weight: "-0.04" }, { source: "C12", target: "C4", weight: "-0.004" }, { source: "C14", target: "C8", weight: "0.55" }, { source: "C15", target: "C13", weight: "-0.2541" }, { source: "C16", target: "C1", weight: "1" }];
+
+                var nodes3d = json.nodes;
+                var edges3d = json.links;
+
+                const elem = document.getElementById('force-directed-graph');
+
+                var positiveColor = '#265500',
+                    negativeColor = '#b7241b',
+                    positiveColorHover = '#96d800',
+                    negativeColorHover = '#f58f92',
+                    textColor = '#213036',
+                    graphBGcolor = '#ffffff';
+                var nodeRelSize = 15;
+
+                var gdata = {
+                    nodes: nodes3d,
+                    links: edges3d
+                };
+                var myGraph = ForceGraph3D();
+
+                let highlightNodes = [];
+                let highlightLinks = [];
+
+
+
+                init();
+
+                function init() {
+                    var mostLinkedNode = getMostLinkedNode()[0].key;
+                    buildGraph();
+                    setTimeout(function () {
+                        myGraph.d3Force('charge').strength(-150);
+                        focusOnMostLinkedNode(mostLinkedNode, gdata.nodes);
+                    }, 1000);
+
+                }
+
+                function buildGraph() {
+                    myGraph(elem)
+                        .graphData(gdata)
+                        .backgroundColor(graphBGcolor)
+                        //NODE INFO
+                        .nodeThreeObject(node => {
+                            const sprite = new SpriteText(node.name);
+                            sprite.color = textColor;
+                            sprite.textHeight = 8;
+                            return sprite;
+                        })
+                        .nodeColor(function (d) {
+                            if (highlightNodes.indexOf(d) === -1) {
+                                return d.val < 0 ? negativeColor : positiveColor;
+                            }
+                            return d.val < 0 ? negativeColorHover : positiveColorHover;
+
+                        })
+                        .nodeVal(function (d) {
+                            return Math.abs(d.val);
+                        })
+                        .nodeRelSize(nodeRelSize)
+                        .nodeLabel(function (d) {
+                            return "<div><span class='label'>Name: " + d.name + "<br />Value: " + d.val + "</span></div>";
+                        })
+                        .nodeOpacity(1)
+                        .onNodeHover(node => {
+                            elem.style.cursor = node ? 'pointer' : null;
+
+                            // no state change
+                            if ((!node && !highlightNodes.length) || (highlightNodes.length === 1 && highlightNodes[0] === node)) return;
+                            highlightNodes = node ? [node] : [];
+                            updateGeometries();
+                        })
+                        .onNodeClick(node => {
+                            updateCamera(node);
+                        })
+                        //LINK INFO
+                        .linkLabel(function (d) {
+                            return "<span class='label'>Weight: " + d.weight + "</span>";
+                        })
+                        .linkColor(function (d) {
+                            if (highlightLinks.indexOf(d) === -1) {
+                                return d.weight < 0 ? negativeColor : positiveColor;
+                            }
+                            return d.weight < 0 ? negativeColorHover : positiveColorHover;
+
+                        })
+                        .linkCurvature(0.2)
+                        .linkDirectionalArrowLength(9)
+                        .linkDirectionalArrowRelPos(1)
+                        .linkDirectionalParticles(function (d) {
+                            return highlightLinks.indexOf(d) === -1 ? 0 : 5
+                        })
+                        .linkDirectionalParticleWidth(5)
+                        .linkDirectionalParticleColor(function (d) {
+                            return d.weight < 0 ? negativeColorHover : positiveColorHover
+                        })
+                        .linkHoverPrecision(10)
+                        .onLinkHover(link => {
+                            // no state change
+                            if ((!link && !highlightLinks.length) || (highlightLinks.length === 1 && highlightLinks[0] === link)) return;
+                            highlightLinks = link ? [link] : [];
+                            highlightNodes = link ? [link.source, link.target] : [];
+                            updateGeometries();
+                        });
+                }
+
+
+
+
+                function updateGeometries() {
+                    myGraph.nodeRelSize(nodeRelSize); // trigger update of 3d objects in scene
+                }
+
+                function updateCamera(node) {
+                    // Aim at node from outside it
+                    const distance = 150;
+                    const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+                    myGraph.cameraPosition({
+                        x: node.x * distRatio,
+                        y: node.y * distRatio,
+                        z: node.z * distRatio
+                    }, // new position
+                        node, // lookAt ({ x, y, z })
+                        2000 // ms transition duration
+                    );
+                }
+
+                function focusOnMostLinkedNode(mostLinkedNode, nodes) {
+                    var nodeToFocusOn = nodes.filter(function (node) {
+                        return node.id === mostLinkedNode;
+                    });
+                    updateCamera(nodeToFocusOn[0]);
+                }
+
+
+                function getMostLinkedNode() {
+                    var nodeLinkCount = getNumberOfTimesEachNodeIsLinked();
+                    var mostLinkedNodeVal = sortObject(nodeLinkCount);
+                    return mostLinkedNodeVal;
+                }
+
+                function getNumberOfTimesEachNodeIsLinked() {
+                    return edges3d.reduce(function (pre, curr) {
+                        if (pre[curr.target]) {
+                            pre[curr.target]++;
+                        } else {
+                            pre[curr.target] = 1;
+                        }
+                        return pre;
+                    }, {});
+                }
+
+                function sortObject(obj) {
+                    var arr = [];
+                    var prop;
+                    for (prop in obj) {
+                        if (obj.hasOwnProperty(prop)) {
+                            arr.push({
+                                'key': prop,
+                                'value': obj[prop]
+                            });
+                        }
+                    }
+                    arr.sort(function (a, b) {
+                        return a.value - b.value;
+                    });
+                    return arr.reverse(); // returns array
+                }
+            }
+
+
+    });
+
+    </script>
+
+}

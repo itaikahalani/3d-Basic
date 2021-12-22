@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "gEIH/qJVedzy739iWASYQWIl4Caem8jMfbgxe2i5e/e65J0lwOOKhB7TXnYnUWvEqW0a1FzllSWBsmOOyB1phA==",
+  "success": true,
+  "projectFilePath": "/Users/itaikahalani/vscode/3d-new-mvc/3d-new-mvc.csproj",
+  "expectedPackageFiles": [
+    "/Users/itaikahalani/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
+    "/Users/itaikahalani/.nuget/packages/restsharp/106.15.0/restsharp.106.15.0.nupkg.sha512"
+  ],
+  "logs": []
+}
