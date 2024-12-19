@@ -1,1 +1,2 @@
-This repo is sample for presenting 3D Lineage against OrientDB 
+.NET MVC sample for presenting 3D Lineage against OrientDB 
+
